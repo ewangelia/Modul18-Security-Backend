@@ -9,41 +9,54 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import axios from 'axios';
-import { useNavigate } from "react-router-dom";
+import {useNavigate} from 'react-router-dom';
 
-const baseUrl = process.env.REACT_APP_URL_BACKEND;
 // Abaikan kode di bawah ini
 const theme = createTheme();
   
 const Register = () => {
-  const Navigate = useNavigate();
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      username: data.get('username'),
-      pass: data.get('password'),
-      email: data.get('email'),
-    });
+    const navigate = useNavigate()
+    const handleSubmit = async (event) => {
+      event.preventDefault();
+      const data = new FormData(event.currentTarget);
+      console.log({
+        username: data.get('username'),
+        pass: data.get('password'),
+        email: data.get('email'),
+      });
 
     // Tambahkan kode di bawah ini untuk mengambil data dari localstorage
     // 1. Lakukan Axios POST ke API Register pada backend di bawah ini
     // body yang digunakan adalah username, email, dan password
     // jika berhasil, redirect ke halaman login
     // jika gagal, tampilkan alert 'Register Gagal'
-    try {
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/register`, {
-        username: data.get('username'),
-        email: data.get('email'),
-        password: data.get('password'),
-      })
-      Navigate('../login');
-    } catch (error) {
-      console.log(error);
-      alert('Register Failed!')
-    };
+      const username = data.get('username')
+      const password = data.get('password')
+      const email = data.get('email')
+      if (username!='' && password!='' && email!='') {
+        axios.post(`${process.env.REACT_APP_BACKEND_URL}/register`, {
+          username: username,
+          email   : email,
+          password: password
+        })
+        .then(function (response) {
+          console.log(response.data)
+          if (response.data=='Data Ditambahkan ke Database') {
+            alert(response.data)
+            navigate('/login')
+          } else {
+            alert('Register Gagal \n'.concat(response.data)) 
+          }
+        })
+        .catch(function (error) {
+          console.log(error);
+          alert('Register Gagal')
+        });
+      } else {
+        alert('Register Gagal')
+      }
 
-  }
+    }
     return (
       <ThemeProvider theme={theme}>
         <Container component="main" maxWidth="xs">
